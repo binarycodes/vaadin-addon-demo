@@ -1,12 +1,14 @@
-variable "REGISTRY" { default = "docker.io/binarycodes" }
+variable "REGISTRY" { default = "docker.io" }
+variable "NAMESPACE"  { default = "binarycodes" }
+
 variable "APP_NAME" { default = "vaadin-addon-demo" }
 variable "APP_VERSION" { default = "1.0-SNAPSHOT" }
 
 group "default" {
-  targets = ["app"]
+  targets = ["image"]
 }
 
-target "app" {
+target "image" {
   context    = "."
   dockerfile = "Dockerfile"
 
@@ -15,10 +17,19 @@ target "app" {
     APP_VERSION = "${APP_VERSION}"
   }
 
-  tags = [
-    "${REGISTRY}/${APP_NAME}:${APP_VERSION}",
-    "${REGISTRY}/${APP_NAME}:latest",
-  ]
+  labels = {
+    "org.opencontainers.image.title" = "${APP_NAME}"
+    "org.opencontainers.image.description" = "Demo app to showcase Vaadin add-ons"
+    "org.opencontainers.image.version" = "${APP_VERSION}"
+  }
 
+  tags = [
+    "${REGISTRY}/${NAMESPACE}/${APP_NAME}:${APP_VERSION}",
+    "${REGISTRY}/${NAMESPACE}/${APP_NAME}:latest",
+  ]
+}
+
+target "image-all" {
+  inherits = ["image"]
   platforms = ["linux/amd64", "linux/arm64"]
 }

@@ -1,4 +1,13 @@
 ARG JAVA_VERSION="21"
+ARG MAVEN_VERSION="3.9"
+
+FROM maven:${MAVEN_VERSION}-eclipse-temurin-${JAVA_VERSION}-alpine AS builder
+
+WORKDIR /code
+COPY . ./
+
+RUN mvn -B package -Pproduction
+
 
 FROM eclipse-temurin:${JAVA_VERSION}-jre-alpine
 
@@ -13,7 +22,7 @@ RUN apk add --no-cache curl \
     && adduser -S -D -H -u 10001 -G demo demo
 
 WORKDIR /app
-COPY --chown=demo:demo target/${APP_NAME}-${APP_VERSION}.jar /app/demo-app.jar
+COPY --chown=demo:demo --from=builder /code/target/${APP_NAME}-${APP_VERSION}.jar /app/demo-app.jar
 
 USER demo:demo
 
