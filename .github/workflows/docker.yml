@@ -48,6 +48,9 @@ jobs:
           set: |
             *.attest=type=provenance,mode=max
             *.attest=type=sbom
+        env:
+          APP_NAME: ${{ steps.extract_version.outputs.MAVEN_NAME }}
+          APP_VERSION: ${{ steps.extract_version.outputs.MAVEN_VERSION }}
 
       - name: install cosign
         uses: sigstore/cosign-installer@v4.0.0
