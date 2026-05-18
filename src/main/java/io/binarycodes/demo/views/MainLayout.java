@@ -10,16 +10,19 @@ import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.server.menu.MenuConfiguration;
 import com.vaadin.flow.server.menu.MenuEntry;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+
 import java.util.List;
 
 @Layout
 @AnonymousAllowed
-public class MainLayout extends AppLayout {
+public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
     private H1 viewTitle;
 
@@ -30,29 +33,29 @@ public class MainLayout extends AppLayout {
     }
 
     private void addHeaderContent() {
-        DrawerToggle toggle = new DrawerToggle();
+        final DrawerToggle toggle = new DrawerToggle();
         toggle.setAriaLabel("Menu toggle");
 
-        viewTitle = new H1();
-        viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+        this.viewTitle = new H1();
+        this.viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-        addToNavbar(true, toggle, viewTitle);
+        addToNavbar(true, toggle, this.viewTitle);
     }
 
     private void addDrawerContent() {
-        Span appName = new Span("Vaadin Add-on Demo");
+        final Span appName = new Span("Vaadin Add-on Demo");
         appName.addClassNames(LumoUtility.FontWeight.SEMIBOLD, LumoUtility.FontSize.LARGE);
-        Header header = new Header(appName);
+        final Header header = new Header(appName);
 
-        Scroller scroller = new Scroller(createNavigation());
+        final Scroller scroller = new Scroller(createNavigation());
 
         addToDrawer(header, scroller, createFooter());
     }
 
     private SideNav createNavigation() {
-        SideNav nav = new SideNav();
+        final SideNav nav = new SideNav();
 
-        List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
+        final List<MenuEntry> menuEntries = MenuConfiguration.getMenuEntries();
         menuEntries.forEach(entry -> {
             if (entry.icon() != null) {
                 nav.addItem(new SideNavItem(entry.title(), entry.path(), new SvgIcon(entry.icon())));
@@ -65,15 +68,12 @@ public class MainLayout extends AppLayout {
     }
 
     private Footer createFooter() {
-        Footer layout = new Footer();
-
-        return layout;
+        return new Footer();
     }
 
     @Override
-    protected void afterNavigation() {
-        super.afterNavigation();
-        viewTitle.setText(getCurrentPageTitle());
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        this.viewTitle.setText(getCurrentPageTitle());
     }
 
     private String getCurrentPageTitle() {
